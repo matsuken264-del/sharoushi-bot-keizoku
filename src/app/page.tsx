@@ -1,4 +1,3 @@
-// src/app/page.tsx (修正版)
 'use client';
 
 import { useState, useRef, useEffect, useTransition, FormEvent, KeyboardEvent, ChangeEvent } from 'react';
@@ -32,7 +31,6 @@ export default function Home() {
   // 音声読み上げの状態管理
   const [speakingMessageId, setSpeakingMessageId] = useState<string | null>(null);
   
-  // ▼▼▼ ここが今回の修正ポイント ▼▼▼
   // synthRefに「SpeechSynthesis または null」が入ることを明示します
   const synthRef = useRef<SpeechSynthesis | null>(null);
 
@@ -90,10 +88,8 @@ export default function Home() {
 
     if (preferredVoiceName) {
         utterance.voice = preferredVoiceName;
-        // console.log(`Voice set to: ${preferredVoiceName.name}`);
     } else if (jpVoices.length > 0) {
         utterance.voice = jpVoices[0];
-        // console.log(`Voice set to default JP: ${jpVoices[0].name}`);
     }
 
     utterance.onstart = () => setSpeakingMessageId(messageId);
@@ -185,17 +181,18 @@ export default function Home() {
               )}
 
               {!msg.isLoading && (
-                // Markdownとして表示するコンポーネント
-                <ReactMarkdown
-                    className="prose dark:prose-invert max-w-none leading-relaxed break-words"
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                        // リンクを新しいタブで開くように設定
-                        a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-700" />
-                    }}
-                >
-                  {msg.content}
-                </ReactMarkdown>
+                // Markdownとして表示するコンポーネント。divで囲んでclassName型エラーを回避
+                <div className="prose dark:prose-invert max-w-none leading-relaxed break-words">
+                    <ReactMarkdown
+                        remarkPlugins={[remarkGfm]}
+                        components={{
+                            // リンクを新しいタブで開くように設定
+                            a: ({node, ...props}) => <a {...props} target="_blank" rel="noopener noreferrer" className="text-blue-500 underline hover:text-blue-700" />
+                        }}
+                    >
+                    {msg.content}
+                    </ReactMarkdown>
+                </div>
               )}
               
               {msg.files && msg.files.length > 0 && (
